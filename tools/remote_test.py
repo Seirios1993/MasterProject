@@ -20,46 +20,32 @@ from nets.vgg16 import vgg16
 from nets.resnet_v1 import resnetv1
 from nets.mobilenet_v1 import mobilenetv1
 
-def parse_args():
+class args:
   """
   Parse input arguments
   """
-  parser = argparse.ArgumentParser(description='Test a Fast R-CNN network')
-  parser.add_argument('--cfg', dest='cfg_file',
-            help='optional config file', default=None, type=str)
-  parser.add_argument('--model', dest='model',
-            help='model to test',
-            default=None, type=str)
-  parser.add_argument('--imdb', dest='imdb_name',
-            help='dataset to test',
-            default='voc_2007_test', type=str)
-  parser.add_argument('--comp', dest='comp_mode', help='competition mode',
-            action='store_true')
-  parser.add_argument('--num_dets', dest='max_per_image',
-            help='max number of detections per image',
-            default=100, type=int)
-  parser.add_argument('--tag', dest='tag',
-                        help='tag of the model',
-                        default='', type=str)
-  parser.add_argument('--net', dest='net',
-                      help='vgg16, res50, res101, res152, mobile',
-                      default='res50', type=str)
-  parser.add_argument('--set', dest='set_cfgs',
-                        help='set config keys', default=None,
-                        nargs=argparse.REMAINDER)
+  TRAIN_IMDB = "voc_2007_trainval"                 #训练集
+  TEST_IMDB = "voc_2007_test"                      #测试集
+  net = 'res101'                                   #网络
+  ITERS = 1000                                     #迭代次数
+  anchors = [8,16,32]
+  ratios = [0.5,1,2]
 
-  if len(sys.argv) == 1:
-    parser.print_help()
-    sys.exit(1)
+  data_path = '/home/seirios/GitHub/tf-faster-rcnn'
+  cfg_file = os.path.join(data_path,'experiments/cfgs',net+'.yml')
+  imdb_name = TEST_IMDB
+  max_per_image = 100
+  model = os.path.join(data_path,'output',net,TRAIN_IMDB,'default',
+                       net+'_faster_rcnn_iter_'+('{}').format(ITERS)+'.ckpt')      #加载训练好的Faster-Rcnn模型
+  tag = ''
+  comp_mode = False
+  set_cfgs = ['ANCHOR_SCALES', anchors, 'ANCHOR_RATIOS', ratios]
 
-  args = parser.parse_args()
-  return args
 
 if __name__ == '__main__':
-  args = parse_args()
+
 
   print('Called with args:')
-  print(args)
 
   if args.cfg_file is not None:
     cfg_from_file(args.cfg_file)

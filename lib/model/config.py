@@ -374,7 +374,7 @@ def cfg_from_list(cfg_list):
     try:
       value = literal_eval(v)
     except:
-      # handle the case when v is a string literal
+      # handle the case when v is a string literal     输入是list或者string都能识别
       value = v
     assert type(value) == type(d[subkey]), \
       'type {} does not match original type {}'.format(

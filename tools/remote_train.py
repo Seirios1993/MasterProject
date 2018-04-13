@@ -16,50 +16,32 @@ import argparse
 import pprint
 import numpy as np
 import sys
-
+import os
 import tensorflow as tf
 from nets.vgg16 import vgg16
 from nets.resnet_v1 import resnetv1
 from nets.mobilenet_v1 import mobilenetv1
 
+class args:
+  """
+  Parse input arguments
+  """
+  TRAIN_IMDB = "voc_2007_trainval"            #训练集
+  TEST_IMDB = "voc_2007_test"                 #测试集
+  net = 'res101'                              #网络框架
+  ITERS = 1000                                #迭代次数
+  anchors = [8,16,32]                         #
+  ratios = [0.5,1,2]                          #
+  stepsize = [50000]                          #
 
-def parse_args():
-    """
-    Parse input arguments
-    """
-    parser = argparse.ArgumentParser(description='Train a Fast R-CNN network')
-    parser.add_argument('--cfg', dest='cfg_file',
-                        help='optional config file',
-                        default=None, type=str)
-    parser.add_argument('--weight', dest='weight',
-                        help='initialize with pretrained model weights',
-                        type=str)
-    parser.add_argument('--imdb', dest='imdb_name',
-                        help='dataset to train on',
-                        default='voc_2007_trainval', type=str)
-    parser.add_argument('--imdbval', dest='imdbval_name',
-                        help='dataset to validate on',
-                        default='voc_2007_test', type=str)
-    parser.add_argument('--iters', dest='max_iters',
-                        help='number of iterations to train',
-                        default=70000, type=int)
-    parser.add_argument('--tag', dest='tag',
-                        help='tag of the model',
-                        default=None, type=str)
-    parser.add_argument('--net', dest='net',
-                        help='vgg16, res50, res101, res152, mobile',
-                        default='res50', type=str)
-    parser.add_argument('--set', dest='set_cfgs',
-                        help='set config keys', default=None,
-                        nargs=argparse.REMAINDER)
-
-    if len(sys.argv) == 1:
-        parser.print_help()
-        sys.exit(1)
-
-    args = parser.parse_args()
-    return args
-
+  data_path = '/home/seirios/GitHub/tf-faster-rcnn'
+  cfg_file = os.path.join(data_path,'experiments/cfgs',net+'.yml')
+  weight = os.path.join(data_path,'data/imagenet_weights',net+'.ckpt')   #使用ImageNet训练好的权值
+  imdb_name = TRAIN_IMDB
+  imdbval_name = TEST_IMDB
+  max_iters = ITERS
+  tag = None
+  set_cfgs = ['ANCHOR_SCALES', anchors, 'ANCHOR_RATIOS', ratios, 'TRAIN.STEPSIZE', stepsize] #输入是list或者string都能识别
 
 # 融合roidb，roidb来自于数据集（实验可能用到多个），所以需要combine多个数据集的roidb
 def combined_roidb(imdb_names):
@@ -88,10 +70,9 @@ def combined_roidb(imdb_names):
 
 
 if __name__ == '__main__':
-    args = parse_args()
+
 
     print('Called with args:')
-    print(args)
 
     if args.cfg_file is not None:
         cfg_from_file(args.cfg_file)
